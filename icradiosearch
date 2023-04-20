@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+
+import sys
+import urllib3
+import re
+
+def main(argv):
+    http = urllib3.PoolManager()
+    query = ' '.join(argv[1:])
+    r = http.request('GET', 'http://dir.xiph.org/search?q={}'.format(query))
+
+    titles = re.findall(r"(?<=card-title\">)[a-zA-z0-9\-_\.\/\?: ]*", str(r.data))
+    urls = re.findall(r"(?<=href=)\"(http://[a-zA-z0-9\-_\.\/\?:]*)?\"", str(r.data))
+    tus = list(zip(titles, urls))
+    for i in range(len(tus)):
+        print("{}:   {}".format(tus[i][0], tus[i][1].replace('"', '')))
+
+if __name__ == "__main__":
+    main(sys.argv)
